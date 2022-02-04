@@ -15,22 +15,22 @@ jobs:
           docker_layer_caching: true
       - restore_cache:
           key: terraform-providers
-      - run:
-          name: Notify Slack
-          command: >-
-            .circleci/slack.sh "Deploying: *DEV* environment version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL" "warning" ":ship: deploy"
+      # - run:
+      #     name: Notify Slack
+      #     command: >-
+      #       .circleci/slack.sh "Deploying: *DEV* environment version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL" "warning" ":ship: deploy"
       - run:
           name: Deploying Web
           command: echo "deploy to dev"
-      - run:
-          name: Notify Failure
-          when: on_fail
-          command: >-
-            .circleci/slack.sh "Failed: *DEV* environment version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL" "danger" ":boom: error"
-      - run:
-          name: Notify Slack
-          command: >-
-            .circleci/slack.sh "Success: *DEV* environment version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL is up and running at https://www.tundra-dev.com/" "good" ":white_check_mark: deploy"
+      # - run:
+      #     name: Notify Failure
+      #     when: on_fail
+      #     command: >-
+      #       .circleci/slack.sh "Failed: *DEV* environment version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL" "danger" ":boom: error"
+      # - run:
+      #     name: Notify Slack
+      #     command: >-
+      #       .circleci/slack.sh "Success: *DEV* environment version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL is up and running at https://www.tundra-dev.com/" "good" ":white_check_mark: deploy"
       - save_cache:
           key: terraform-providers
           paths:
@@ -44,22 +44,22 @@ jobs:
           docker_layer_caching: true
       - restore_cache:
           key: terraform-providers
-      - run:
-          name: Notify Slack
-          command: >-
-            .circleci/slack.sh "Deploying: *STAGE* environment version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL" "warning" ":ship: deploy"
+      # - run:
+      #     name: Notify Slack
+      #     command: >-
+      #       .circleci/slack.sh "Deploying: *STAGE* environment version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL" "warning" ":ship: deploy"
       - run:
           name: Deploying Web
           command: echo "deploy to stage"
-      - run:
-          name: Notify failure
-          when: on_fail
-          command: >-
-            .circleci/slack.sh "Failed: *STAGE* environment version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL" "danger" ":boom: error"
-      - run:
-          name: Notify Slack
-          command: >-
-            .circleci/slack.sh "Success: *STAGE* environment version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL is up and running at https://www.tundra-stage.com/" "good" ":white_check_mark: build"
+      # - run:
+      #     name: Notify failure
+      #     when: on_fail
+      #     command: >-
+      #       .circleci/slack.sh "Failed: *STAGE* environment version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL" "danger" ":boom: error"
+      # - run:
+      #     name: Notify Slack
+      #     command: >-
+      #       .circleci/slack.sh "Success: *STAGE* environment version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL is up and running at https://www.tundra-stage.com/" "good" ":white_check_mark: build"
       - save_cache:
           key: terraform-providers
           paths:
@@ -73,22 +73,22 @@ jobs:
           docker_layer_caching: true
       - restore_cache:
           key: terraform-providers
-      - run:
-          name: Notify Slack
-          command: >-
-            .circleci/slack.sh "Deploying: *PROD* environment version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL" "danger" ":ship: deploy"
+      # - run:
+      #     name: Notify Slack
+      #     command: >-
+      #       .circleci/slack.sh "Deploying: *PROD* environment version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL" "danger" ":ship: deploy"
       - run:
           name: Deploying Web
           command: echo "deploy to prod"
-      - run:
-          name: Notify failure
-          when: on_fail
-          command: >-
-            .circleci/slack.sh "Failed: *PROD* environment version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL" "danger" ":boom: error"
-      - run:
-          name: Notify Slack
-          command: >-
-            .circleci/slack.sh "Success: *PROD* environment version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL is up and running" "good" ":white_check_mark: build"
+      # - run:
+      #     name: Notify failure
+      #     when: on_fail
+      #     command: >-
+      #       .circleci/slack.sh "Failed: *PROD* environment version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL" "danger" ":boom: error"
+      # - run:
+      #     name: Notify Slack
+      #     command: >-
+      #       .circleci/slack.sh "Success: *PROD* environment version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL is up and running" "good" ":white_check_mark: build"
       - save_cache:
           key: terraform-providers
           paths:
@@ -98,16 +98,16 @@ jobs:
     working_directory: ~/project
     docker: *ref_0
     steps:
-      - slack/status:
-          fail_only: "true"
-          webhook: $SLACK_WEBHOOK
+      # - slack/status:
+      #     fail_only: "true"
+      #     webhook: $SLACK_WEBHOOK
       - checkout
       - restore_cache:
           key: *cache_key
-      - run:
-          name: Notify Slack
-          command: >-
-            .circleci/slack.sh "Compiling code: buy branch $CIRCLE_BRANCH version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL" "good" ":tundra-electric: compile"
+      # - run:
+      #     name: Notify Slack
+      #     command: >-
+      #       .circleci/slack.sh "Compiling code: project branch $CIRCLE_BRANCH version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL" "good" ":tundra-electric: compile"
       - run:
           name: Display Versions of Build Tools
           command: >-
@@ -133,19 +133,19 @@ jobs:
     working_directory: ~/project
     docker: *ref_0
     steps:
-      - slack/status:
-          fail_only: "true"
-          webhook: $SLACK_WEBHOOK
+      # - slack/status:
+      #     fail_only: "true"
+      #     webhook: $SLACK_WEBHOOK
       - attach_workspace:
           at: .
       - restore_cache:
           key: *cache_key
       - setup_remote_docker:
           docker_layer_caching: true
-      - run:
-          name: Notify Slack
-          command: >-
-            .circleci/slack.sh "Building services: buy branch $CIRCLE_BRANCH version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL" "good" ":scala: services"
+      # - run:
+      #     name: Notify Slack
+      #     command: >-
+      #       .circleci/slack.sh "Building services: project branch $CIRCLE_BRANCH version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL" "good" ":scala: services"
       - run:
           name: Building Services
           command: docker build .
@@ -155,17 +155,17 @@ jobs:
     working_directory: ~/project
     docker: *ref_0
     steps:
-      - slack/status:
-          fail_only: "true"
-          webhook: $SLACK_WEBHOOK
+      # - slack/status:
+      #     fail_only: "true"
+      #     webhook: $SLACK_WEBHOOK
       - attach_workspace:
           at: .
       - restore_cache:
           key: *cache_key
-      - run:
-          name: Notify Slack
-          command: >-
-            .circleci/slack.sh "Building webpack: buy branch $CIRCLE_BRANCH version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL" "good" ":spider_web: webpack"
+      # - run:
+      #     name: Notify Slack
+      #     command: >-
+      #       .circleci/slack.sh "Building webpack: project branch $CIRCLE_BRANCH version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL" "good" ":spider_web: webpack"
       - run:
           name: Building Web Assets
           command: echo "build web assets"
@@ -188,9 +188,9 @@ jobs:
     working_directory: ~/project
     docker: *ref_0
     steps:
-      - slack/status:
-          fail_only: "true"
-          webhook: $SLACK_WEBHOOK
+      # - slack/status:
+      #     fail_only: "true"
+      #     webhook: $SLACK_WEBHOOK
       - attach_workspace:
           at: .
       - restore_cache:
@@ -206,9 +206,9 @@ jobs:
     working_directory: ~/project
     docker: *ref_0
     steps:
-      - slack/status:
-          fail_only: "true"
-          webhook: $SLACK_WEBHOOK
+      # - slack/status:
+      #     fail_only: "true"
+      #     webhook: $SLACK_WEBHOOK
       - attach_workspace:
           at: .
       - restore_cache:
@@ -249,7 +249,7 @@ jobs:
       - run:
           name: Run Full Cypress Tests With Reporting
           command: echo "run cypress"
-          working_directory: ~/project/buy-e2e
+          working_directory: ~/project/e2e
 
   test_cy_staging2:
     working_directory: ~/project
@@ -259,7 +259,7 @@ jobs:
       - run:
           name: Run Full Cypress Tests With Reporting
           command: echo "run cypress"
-          working_directory: ~/project/buy-e2e
+          working_directory: ~/project/e2e
 
   test_cy_staging3:
     working_directory: ~/project
@@ -269,7 +269,7 @@ jobs:
       - run:
           name: Run Full Cypress Tests With Reporting
           command: echo "run cypress"
-          working_directory: ~/project/buy-e2e
+          working_directory: ~/project/e2e
 
   test_cy_staging4:
     working_directory: ~/project
@@ -279,7 +279,7 @@ jobs:
       - run:
           name: Run Full Cypress Tests With Reporting
           command: echo "run cypress"
-          working_directory: ~/project/buy-e2e
+          working_directory: ~/project/e2e
 
   run_validation_scripts:
     working_directory: ~/project
@@ -292,7 +292,7 @@ jobs:
 
 workflows:
   version: 2
-  buy_ci_cd:
+  ci_cd:
     jobs:
       - run_validation_scripts:
           context: security/machine-user
