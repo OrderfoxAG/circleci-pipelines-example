@@ -296,11 +296,11 @@ workflows:
     jobs:
       - run_validation_scripts:
           context: security/machine-user
-          filters:
-            branches:
-              only:
-                - master
-                - for-release
+          # filters:
+          #   branches:
+          #     only:
+          #       - master
+          #       - for-release
 
       - build_code:
           context: security/machine-user
@@ -334,10 +334,10 @@ workflows:
             - test
             - test_it_web
             - build_webpack
-          filters:
-            branches:
-              only:
-                - integration
+          # filters:
+          #   branches:
+          #     only:
+          #       - integration
 
       - stage_deploy:
           context: security/machine-user
@@ -345,11 +345,11 @@ workflows:
             - test
             - test_it_web
             - build_webpack
-          filters:
-            branches:
-              only:
-                - master
-                - /master-hotfix-.*/
+          # filters:
+          #   branches:
+          #     only:
+          #       - master
+          #       - /master-hotfix-.*/
 
       - prod_pre_approve_deploy:
           type: approval
@@ -357,21 +357,21 @@ workflows:
             - test
             - test_it_web
             - build_webpack
-          filters:
-            branches:
-              only:
-                - master
-                - /master-hotfix-.*/
+          # filters:
+          #   branches:
+          #     only:
+          #       - master
+          #       - /master-hotfix-.*/
 
       - prod_approve_deploy:
           type: approval
           requires:
             - prod_pre_approve_deploy
-          filters:
-            branches:
-              only:
-                - master
-                - /master-hotfix-.*/
+          # filters:
+          #   branches:
+          #     only:
+          #       - master
+          #       - /master-hotfix-.*/
 
       - prod_deploy:
           context: security/machine-user
@@ -382,51 +382,51 @@ workflows:
           type: approval
           requires:
             - build_tools
-          filters:
-            branches:
-              only:
-                - master
+          # filters:
+          #   branches:
+          #     only:
+          #       - master
 
       - stage_init:
           context: security/machine-user
           requires:
             - stage_init_approve
-          filters:
-            branches:
-              only:
-                - master
+          # filters:
+          #   branches:
+          #     only:
+          #       - master
 
       - stage_fixtures_approve:
           type: approval
           requires:
             - build_tools
-          filters:
-            branches:
-              only:
-                - master
-                - BUILD-909-better-fixtures
+          # filters:
+          #   branches:
+          #     only:
+          #       - master
+          #       - BUILD-909-better-fixtures
 
       - stage_fixtures:
           context: security/machine-user
           requires:
             - stage_fixtures_approve
-          filters:
-            branches:
-              only:
-                - master
-                - BUILD-909-better-fixtures
+          # filters:
+          #   branches:
+          #     only:
+          #       - master
+          #       - BUILD-909-better-fixtures
 
       - stage_cy1_approve:
           type: approval
           requires:
             - build_services
             - build_webpack
-          filters:
-            branches:
-              only:
-                - master
-                - /master-hotfix-.*/
-                - BUILD-909-better-fixtures
+          # filters:
+          #   branches:
+          #     only:
+          #       - master
+          #       - /master-hotfix-.*/
+          #       - BUILD-909-better-fixtures
 
       - test_cy_staging1:
           context: security/machine-user
@@ -438,11 +438,11 @@ workflows:
           requires:
             - build_services
             - build_webpack
-          filters:
-            branches:
-              only:
-                - master
-                - /master-hotfix-.*/
+          # filters:
+          #   branches:
+          #     only:
+          #       - master
+          #       - /master-hotfix-.*/
 
       - test_cy_staging2:
           context: security/machine-user
@@ -454,11 +454,11 @@ workflows:
           requires:
             - build_services
             - build_webpack
-          filters:
-            branches:
-              only:
-                - master
-                - /master-hotfix-.*/
+          # filters:
+          #   branches:
+          #     only:
+          #       - master
+          #       - /master-hotfix-.*/
 
       - test_cy_staging3:
           context: security/machine-user
@@ -470,11 +470,11 @@ workflows:
           requires:
             - build_services
             - build_webpack
-          filters:
-            branches:
-              only:
-                - master
-                - /master-hotfix-.*/
+          # filters:
+          #   branches:
+          #     only:
+          #       - master
+          #       - /master-hotfix-.*/
 
       - test_cy_staging4:
           context: security/machine-user
