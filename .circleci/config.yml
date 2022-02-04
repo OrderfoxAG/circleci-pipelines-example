@@ -341,7 +341,7 @@ workflows:
           #     only:
           #       - integration
 
-      - stage_deploy:
+      - stage_approve_deploy:
           context: security/machine-user
           requires:
             - test
@@ -353,12 +353,23 @@ workflows:
           #       - master
           #       - /master-hotfix-.*/
 
+      - stage_deploy:
+          context: security/machine-user
+          requires:
+            - stage_approve_deploy
+          # filters:
+          #   branches:
+          #     only:
+          #       - master
+          #       - /master-hotfix-.*/
+
       - prod_pre_approve_deploy:
           type: approval
           requires:
-            - test
-            - test_it_web
-            - build_webpack
+            - test_cy_staging1
+            - test_cy_staging2
+            - test_cy_staging4
+
           # filters:
           #   branches:
           #     only:
@@ -421,8 +432,7 @@ workflows:
       - stage_cy1_approve:
           type: approval
           requires:
-            - build_services
-            - build_webpack
+            - stage_deploy
           # filters:
           #   branches:
           #     only:
