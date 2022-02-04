@@ -1,0 +1,482 @@
+defaults:
+  working_directory: ~/project
+  docker: &ref_0
+    - image: cimg/node:17.4.0
+  cache_key: &cache_key 'project-{{ checksum "package.json" }}'
+version: 2.1
+orbs:
+  slack: circleci/slack@0.1.12
+jobs:
+  dev_deploy:
+    docker: *ref_0
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - restore_cache:
+          key: terraform-providers
+      - run:
+          name: Notify Slack
+          command: >-
+            .circleci/slack.sh "Deploying: *DEV* environment version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL" "warning" ":ship: deploy"
+      - run:
+          name: Deploying Web
+          command: echo "deploy to dev"
+      - run:
+          name: Notify Failure
+          when: on_fail
+          command: >-
+            .circleci/slack.sh "Failed: *DEV* environment version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL" "danger" ":boom: error"
+      - run:
+          name: Notify Slack
+          command: >-
+            .circleci/slack.sh "Success: *DEV* environment version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL is up and running at https://www.tundra-dev.com/" "good" ":white_check_mark: deploy"
+      - save_cache:
+          key: terraform-providers
+          paths:
+            - ~/.terraform.d/plugin-cache
+
+  stage_deploy:
+    docker: *ref_0
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - restore_cache:
+          key: terraform-providers
+      - run:
+          name: Notify Slack
+          command: >-
+            .circleci/slack.sh "Deploying: *STAGE* environment version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL" "warning" ":ship: deploy"
+      - run:
+          name: Deploying Web
+          command: echo "deploy to stage"
+      - run:
+          name: Notify failure
+          when: on_fail
+          command: >-
+            .circleci/slack.sh "Failed: *STAGE* environment version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL" "danger" ":boom: error"
+      - run:
+          name: Notify Slack
+          command: >-
+            .circleci/slack.sh "Success: *STAGE* environment version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL is up and running at https://www.tundra-stage.com/" "good" ":white_check_mark: build"
+      - save_cache:
+          key: terraform-providers
+          paths:
+            - ~/.terraform.d/plugin-cache
+
+  prod_deploy:
+    docker: *ref_0
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - restore_cache:
+          key: terraform-providers
+      - run:
+          name: Notify Slack
+          command: >-
+            .circleci/slack.sh "Deploying: *PROD* environment version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL" "danger" ":ship: deploy"
+      - run:
+          name: Deploying Web
+          command: echo "deploy to prod"
+      - run:
+          name: Notify failure
+          when: on_fail
+          command: >-
+            .circleci/slack.sh "Failed: *PROD* environment version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL" "danger" ":boom: error"
+      - run:
+          name: Notify Slack
+          command: >-
+            .circleci/slack.sh "Success: *PROD* environment version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL is up and running" "good" ":white_check_mark: build"
+      - save_cache:
+          key: terraform-providers
+          paths:
+            - ~/.terraform.d/plugin-cache
+
+  build_code:
+    working_directory: ~/project
+    docker: *ref_0
+    steps:
+      - slack/status:
+          fail_only: "true"
+          webhook: $SLACK_WEBHOOK
+      - checkout
+      - restore_cache:
+          key: *cache_key
+      - run:
+          name: Notify Slack
+          command: >-
+            .circleci/slack.sh "Compiling code: buy branch $CIRCLE_BRANCH version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL" "good" ":tundra-electric: compile"
+      - run:
+          name: Display Versions of Build Tools
+          command: >-
+            bash .circleci/display-version.sh
+          environment:
+            AWS_REGION: eu-west-1
+            AWS_DEFAULT_REGION: eu-west-1
+      - run:
+          name: Building Models
+          command: echo
+          no_output_timeout: 20m
+      - save_cache:
+          paths:
+            - ~/.ivy2
+            - ~/.sbt
+            - ~/.npm
+          key: *cache_key
+      - persist_to_workspace:
+          root: .
+          paths: .
+
+  build_services:
+    working_directory: ~/project
+    docker: *ref_0
+    steps:
+      - slack/status:
+          fail_only: "true"
+          webhook: $SLACK_WEBHOOK
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          key: *cache_key
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Notify Slack
+          command: >-
+            .circleci/slack.sh "Building services: buy branch $CIRCLE_BRANCH version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL" "good" ":scala: services"
+      - run:
+          name: Building Services
+          command: docker build .
+          no_output_timeout: 20m
+
+  build_webpack:
+    working_directory: ~/project
+    docker: *ref_0
+    steps:
+      - slack/status:
+          fail_only: "true"
+          webhook: $SLACK_WEBHOOK
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          key: *cache_key
+      - run:
+          name: Notify Slack
+          command: >-
+            .circleci/slack.sh "Building webpack: buy branch $CIRCLE_BRANCH version _$(.circleci/version.sh)_ triggered by $CIRCLE_USERNAME from $CIRCLE_BUILD_URL" "good" ":spider_web: webpack"
+      - run:
+          name: Building Web Assets
+          command: echo "build web assets"
+          no_output_timeout: 20m
+
+  build_tools:
+    working_directory: ~/project
+    docker: *ref_0
+    steps:
+      - checkout
+      - restore_cache:
+          key: *cache_key
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Building tools
+          command: echo "build tools"
+
+  test:
+    working_directory: ~/project
+    docker: *ref_0
+    steps:
+      - slack/status:
+          fail_only: "true"
+          webhook: $SLACK_WEBHOOK
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          key: *cache_key
+      - run:
+          name: Core Unit Testing
+          command: echo "run tests"
+          no_output_timeout: 20m
+      - store_test_results:
+          path: web/target/test-reports
+
+  test_it_web:
+    working_directory: ~/project
+    docker: *ref_0
+    steps:
+      - slack/status:
+          fail_only: "true"
+          webhook: $SLACK_WEBHOOK
+      - attach_workspace:
+          at: .
+      - restore_cache:
+          key: *cache_key
+      - run:
+          name: Testing Integration
+          command: echo "run integration tests"
+      - store_test_results:
+          path: web/target/test-reports
+
+  stage_init:
+    working_directory: ~/project
+    docker: *ref_0
+    steps:
+      - checkout
+      - restore_cache:
+          key: *cache_key
+      - run:
+          name: Test Init
+          command: echo "initialize stage"
+
+  stage_fixtures:
+    working_directory: ~/project
+    docker: *ref_0
+    steps:
+      - checkout
+      - restore_cache:
+          key: *cache_key
+      - run:
+          name: Upload Generated Fixtures
+          command: echo "fixtures"
+
+  test_cy_staging1:
+    working_directory: ~/project
+    docker:
+      - image: cypress/included:3.4.0
+    steps:
+      - run:
+          name: Run Full Cypress Tests With Reporting
+          command: echo "run cypress"
+          working_directory: ~/project/buy-e2e
+
+  test_cy_staging2:
+    working_directory: ~/project
+    docker:
+      - image: cypress/included:3.4.0
+    steps:
+      - run:
+          name: Run Full Cypress Tests With Reporting
+          command: echo "run cypress"
+          working_directory: ~/project/buy-e2e
+
+  test_cy_staging3:
+    working_directory: ~/project
+    docker:
+      - image: cypress/included:3.4.0
+    steps:
+      - run:
+          name: Run Full Cypress Tests With Reporting
+          command: echo "run cypress"
+          working_directory: ~/project/buy-e2e
+
+  test_cy_staging4:
+    working_directory: ~/project
+    docker:
+      - image: cypress/included:3.4.0
+    steps:
+      - run:
+          name: Run Full Cypress Tests With Reporting
+          command: echo "run cypress"
+          working_directory: ~/project/buy-e2e
+
+  run_validation_scripts:
+    working_directory: ~/project
+    docker: *ref_0
+    steps:
+      - checkout
+      - run:
+          name: Validate For Unmerged Branches
+          command: echo "validate"
+
+workflows:
+  version: 2
+  buy_ci_cd:
+    jobs:
+      - run_validation_scripts:
+          context: security/machine-user
+          filters:
+            branches:
+              only:
+                - master
+                - for-release
+
+      - build_code:
+          context: security/machine-user
+
+      - build_services:
+          context: security/machine-user
+          requires:
+            - build_code
+
+      - build_webpack:
+          context: security/machine-user
+          requires:
+            - build_code
+
+      - test:
+          context: security/machine-user
+          requires:
+            - build_services
+
+      - test_it_web:
+          context: security/machine-user
+          requires:
+            - build_services
+
+      - build_tools:
+          context: security/machine-user
+
+      - dev_deploy:
+          context: security/machine-user
+          requires:
+            - test
+            - test_it_web
+            - build_webpack
+          filters:
+            branches:
+              only:
+                - integration
+
+      - stage_deploy:
+          context: security/machine-user
+          requires:
+            - test
+            - test_it_web
+            - build_webpack
+          filters:
+            branches:
+              only:
+                - master
+                - /master-hotfix-.*/
+
+      - prod_pre_approve_deploy:
+          type: approval
+          requires:
+            - test
+            - test_it_web
+            - build_webpack
+          filters:
+            branches:
+              only:
+                - master
+                - /master-hotfix-.*/
+
+      - prod_approve_deploy:
+          type: approval
+          requires:
+            - prod_pre_approve_deploy
+          filters:
+            branches:
+              only:
+                - master
+                - /master-hotfix-.*/
+
+      - prod_deploy:
+          context: security/machine-user
+          requires:
+            - prod_approve_deploy
+
+      - stage_init_approve:
+          type: approval
+          requires:
+            - build_tools
+          filters:
+            branches:
+              only:
+                - master
+
+      - stage_init:
+          context: security/machine-user
+          requires:
+            - stage_init_approve
+          filters:
+            branches:
+              only:
+                - master
+
+      - stage_fixtures_approve:
+          type: approval
+          requires:
+            - build_tools
+          filters:
+            branches:
+              only:
+                - master
+                - BUILD-909-better-fixtures
+
+      - stage_fixtures:
+          context: security/machine-user
+          requires:
+            - stage_fixtures_approve
+          filters:
+            branches:
+              only:
+                - master
+                - BUILD-909-better-fixtures
+
+      - stage_cy1_approve:
+          type: approval
+          requires:
+            - build_services
+            - build_webpack
+          filters:
+            branches:
+              only:
+                - master
+                - /master-hotfix-.*/
+                - BUILD-909-better-fixtures
+
+      - test_cy_staging1:
+          context: security/machine-user
+          requires:
+            - stage_cy1_approve
+
+      - stage_cy2_approve:
+          type: approval
+          requires:
+            - build_services
+            - build_webpack
+          filters:
+            branches:
+              only:
+                - master
+                - /master-hotfix-.*/
+
+      - test_cy_staging2:
+          context: security/machine-user
+          requires:
+            - stage_cy2_approve
+
+      - stage_cy3_approve:
+          type: approval
+          requires:
+            - build_services
+            - build_webpack
+          filters:
+            branches:
+              only:
+                - master
+                - /master-hotfix-.*/
+
+      - test_cy_staging3:
+          context: security/machine-user
+          requires:
+            - stage_cy3_approve
+
+      - stage_cy4_approve:
+          type: approval
+          requires:
+            - build_services
+            - build_webpack
+          filters:
+            branches:
+              only:
+                - master
+                - /master-hotfix-.*/
+
+      - test_cy_staging4:
+          context: security/machine-user
+          requires:
+            - stage_cy4_approve
