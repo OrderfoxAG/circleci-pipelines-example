@@ -281,7 +281,7 @@ jobs:
           command: echo "run cypress"
           working_directory: ~/project/e2e
 
-  run_validation_scripts:
+  code_checks:
     working_directory: ~/project
     docker: *ref_0
     steps:
@@ -294,7 +294,7 @@ workflows:
   version: 2
   ci_cd:
     jobs:
-      - run_validation_scripts:
+      - code_checks:
           context: security/machine-user
           # filters:
           #   branches:
@@ -309,11 +309,13 @@ workflows:
           context: security/machine-user
           requires:
             - build_code
+            - code_checks
 
       - build_webpack:
           context: security/machine-user
           requires:
             - build_code
+            - code_checks
 
       - test:
           context: security/machine-user
@@ -431,7 +433,7 @@ workflows:
       - test_cy_staging1:
           context: security/machine-user
           requires:
-            - stage_cy1_approve
+            - stage_init
 
       # - stage_cy2_approve:
       #     type: approval
@@ -447,7 +449,7 @@ workflows:
       - test_cy_staging2:
           context: security/machine-user
           requires:
-            - stage_cy1_approve
+            - stage_init
 
       # - stage_cy3_approve:
       #     type: approval
