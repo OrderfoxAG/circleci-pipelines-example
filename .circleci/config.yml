@@ -378,43 +378,43 @@ workflows:
           requires:
             - prod_approve_deploy
 
-      - stage_init_approve:
-          type: approval
-          requires:
-            - build_tools
-          # filters:
-          #   branches:
-          #     only:
-          #       - master
+      # - stage_init_approve:
+      #     type: approval
+      #     requires:
+      #       - build_tools
+      #     # filters:
+      #     #   branches:
+      #     #     only:
+      #     #       - master
 
       - stage_init:
           context: security/machine-user
           requires:
-            - stage_init_approve
+            - stage_cy1_approve
           # filters:
           #   branches:
           #     only:
           #       - master
 
-      - stage_fixtures_approve:
-          type: approval
-          requires:
-            - build_tools
-          # filters:
-          #   branches:
-          #     only:
-          #       - master
-          #       - BUILD-909-better-fixtures
+      # - stage_fixtures_approve:
+      #     type: approval
+      #     requires:
+      #       - build_tools
+      #     # filters:
+      #     #   branches:
+      #     #     only:
+      #     #       - master
+      #     #       - BUILD-909-better-fixtures
 
-      - stage_fixtures:
-          context: security/machine-user
-          requires:
-            - stage_fixtures_approve
-          # filters:
-          #   branches:
-          #     only:
-          #       - master
-          #       - BUILD-909-better-fixtures
+      # - stage_fixtures:
+      #     context: security/machine-user
+      #     requires:
+      #       - stage_fixtures_approve
+      #     # filters:
+      #     #   branches:
+      #     #     only:
+      #     #       - master
+      #     #       - BUILD-909-better-fixtures
 
       - stage_cy1_approve:
           type: approval
@@ -433,37 +433,37 @@ workflows:
           requires:
             - stage_cy1_approve
 
-      - stage_cy2_approve:
-          type: approval
-          requires:
-            - build_services
-            - build_webpack
-          # filters:
-          #   branches:
-          #     only:
-          #       - master
-          #       - /master-hotfix-.*/
+      # - stage_cy2_approve:
+      #     type: approval
+      #     requires:
+      #       - build_services
+      #       - build_webpack
+      # filters:
+      #   branches:
+      #     only:
+      #       - master
+      #       - /master-hotfix-.*/
 
       - test_cy_staging2:
           context: security/machine-user
           requires:
-            - stage_cy2_approve
+            - stage_cy1_approve
 
-      - stage_cy3_approve:
-          type: approval
-          requires:
-            - build_services
-            - build_webpack
-          # filters:
-          #   branches:
-          #     only:
-          #       - master
-          #       - /master-hotfix-.*/
+      # - stage_cy3_approve:
+      #     type: approval
+      #     requires:
+      #       - build_services
+      #       - build_webpack
+      # filters:
+      #   branches:
+      #     only:
+      #       - master
+      #       - /master-hotfix-.*/
 
-      - test_cy_staging3:
-          context: security/machine-user
-          requires:
-            - stage_cy3_approve
+      # - test_cy_staging3:
+      #     context: security/machine-user
+      #     requires:
+      #       - stage_cy3_approve
 
       - stage_cy4_approve:
           type: approval
