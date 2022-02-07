@@ -16,6 +16,9 @@ blocks:
             - npm install
             - cache store
             - npm run build --if-present
+        - name: Build docker
+          commands:
+            - 'docker build . '
     dependencies: []
   - name: Test API
     dependencies:
