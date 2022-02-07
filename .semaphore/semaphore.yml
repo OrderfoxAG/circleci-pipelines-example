@@ -24,7 +24,7 @@ blocks:
       jobs:
         - name: Test
           commands:
-            - npm run test --if-present
+            - echo "npm run test --if-present"
   - name: Build Tools
     dependencies: []
     task:
