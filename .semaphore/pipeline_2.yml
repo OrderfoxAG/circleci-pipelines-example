@@ -1,0 +1,22 @@
+version: v1.0
+name: Pipeline 2
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+blocks:
+  - name: Stage Deploy
+    task:
+      jobs:
+        - name: stage deployment
+          commands:
+            - echo "stage"
+  - name: CY Tests
+    task:
+      jobs:
+        - name: Cypress tests
+          commands:
+            - echo "cypress"
+promotions:
+  - name: Prod promotion
+    pipeline_file: pipeline_3.yml

@@ -1,0 +1,71 @@
+version: v1.0
+name: Test MyApp
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu2004
+blocks:
+  - name: Build
+    task:
+      jobs:
+        - name: Resolve dependencies
+          commands:
+            - checkout
+            - sem-version node 12
+            - cache restore
+            - npm install
+            - cache store
+            - npm run build --if-present
+        - name: Build docker
+          commands:
+            - checkout
+            - sem-version node 12
+            - cache restore
+            - 'docker build . '
+            - cache store
+    dependencies: []
+  - name: Test API
+    dependencies:
+      - Build
+    task:
+      jobs:
+        - name: Test
+          commands:
+            - echo "npm run test --if-present"
+  - name: Build Tools
+    dependencies: []
+    task:
+      jobs:
+        - name: Build tools
+          commands:
+            - echo "build tools"
+  - name: Code checks
+    dependencies: []
+    task:
+      jobs:
+        - name: ESlint
+          commands:
+            - echo "eslinter"
+        - name: Formatter
+          commands:
+            - echo "formatter"
+  - name: Test 2
+    dependencies:
+      - Build
+    task:
+      jobs:
+        - name: api test
+          commands:
+            - echo "api testing"
+after_pipeline:
+  task:
+    jobs:
+      - name: Publish Artefact
+        commands:
+          - echo "docker push"
+      - name: Deploy Dev
+        commands:
+          - echo "deploy"
+promotions:
+  - name: Stage promotion
+    pipeline_file: pipeline_2.yml
