@@ -342,7 +342,7 @@ workflows:
           #       - integration
 
       - stage_approve_deploy:
-          context: security/machine-user
+          type: approval
           requires:
             - test
             - test_it_web
